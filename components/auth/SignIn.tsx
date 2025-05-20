@@ -1,6 +1,6 @@
 "use client"
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 
 export default function SignIn() {
@@ -9,6 +9,7 @@ export default function SignIn() {
   const router = useRouter();
 
   const handleSignIn = async () => {
+    const supabase =  createClient();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       alert(error.message);

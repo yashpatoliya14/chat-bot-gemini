@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { createRouteHandlerClient, createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 
 
 import { cookies } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -19,42 +19,26 @@ export async function POST(req: NextRequest) {
     const answer = result.response.text();
 
     // ----- Save to Supabase
-    console.log(cookies());
     
-    const supabase = createRouteHandlerClient({
-        cookies: () => cookies()
-    });
+    const supabase = await createClient()
 
-    // Get user with error handling
-    let user;
-    try {
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        user = authUser;
-    } catch (error) {
-        console.error('Auth error:', error);
-        return NextResponse.json(
-            { error: 'Authentication check failed' },
-            { status: 500 }
-        );
-    }
+    
+  // 5) verify user
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+  }
 
-    if (user) {
-        try {
-            const { error } = await supabase.from('chats').insert({
-                user_id: user.id,
-                question: prompt,
-                answer
-            });
+  // 6) save chat
+  const { error: dbError } = await supabase
+    .from('chats')
+    .insert({ user_id: user.id, question: prompt, answer })
 
-            if (error) throw error;
-        } catch (error) {
-            console.error('Database error:', error);
-            return NextResponse.json(
-                { error: 'Failed to save chat history' },
-                { status: 500 }
-            );
-        }
-    }
+  if (dbError) {
+    console.error('DB error:', dbError)
+    return NextResponse.json({ error: dbError.message }, { status: 500 })
+  }
 
-    return NextResponse.json({ answer });
+  // 7) return answer
+  return NextResponse.json({ answer })
 }
