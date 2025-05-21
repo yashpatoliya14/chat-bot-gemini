@@ -5,11 +5,9 @@ import pdfParse from 'pdf-parse';
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
-    console.log(formData);
-    
     const file = formData.get('file');
 
-    // Validate file exists
+    // --------- Validate file exists
     if (!file || !(file instanceof File)) {
       return NextResponse.json(
         { error: 'No PDF file uploaded' },
@@ -21,7 +19,7 @@ export async function POST(request: Request) {
     if (file.type !== 'application/pdf') {
       return NextResponse.json(
         { error: 'Only PDF files are accepted' },
-        { status: 415 }
+        { status: 415 },
       );
     }
 
@@ -32,7 +30,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ 
       success: true,
       filename: file.name,
-      text: text.substring(0, 500) + '...' // Return preview
+      text: text // return an extracted text to the client
      });
   } catch (error) {
     console.error('PDF processing error:', error);
