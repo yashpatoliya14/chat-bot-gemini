@@ -30,9 +30,9 @@ A full-stack chatbot web application built with **Next.js**, **Supabase**, and t
 ### PDF Parsing:
 - [`pdf-parse`](https://www.npmjs.com/package/pdf-parse) or `pdfjs-dist`
 
-### Deployment (Optional for Bonus):
-- [Vercel](https://vercel.com/) / [Heroku](https://www.heroku.com/) / [AWS](https://aws.amazon.com/)
+## Deployment Link
 
+- [`render`](https://chat-bot-gemini-r60u.onrender.com)
 
 ---
 
