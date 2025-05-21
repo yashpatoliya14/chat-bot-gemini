@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { Message } from "./Dashboard";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Bot, User as UserIcon } from "lucide-react";
+import { Message } from "./dashboard";
 
 export default function MessageSection({ messages }: { messages: Message[] }) {
   const bottomRef = useRef<HTMLDivElement | null>(null);

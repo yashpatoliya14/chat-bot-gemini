@@ -1,5 +1,5 @@
+import SignUp from "@/components/auth/SignUp";
 
-import SignUp from "@/components/auth/Signup";
 
 export default function (){
     return (
