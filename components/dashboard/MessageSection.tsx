@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Bot, User as UserIcon } from "lucide-react";
-import { Message } from "./dashboard";
+import { Message } from "./Dashboard";
 
 export default function MessageSection({ messages }: { messages: Message[] }) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -60,7 +60,7 @@ export default function MessageSection({ messages }: { messages: Message[] }) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          code({ node, className, children, ...props }) {
+          code({ className, children, ...props }) {
             const isBlock = !className;
             return isBlock ? (
               <pre className="bg-gray-800 text-white p-4 rounded my-2 max-w-full overflow-x-auto whitespace-pre-wrap">

@@ -1,32 +1,3 @@
-"use client"
-// import { createClient } from '@/utils/supabase/client';
-// import { useState } from 'react';
-// import { useRouter } from 'next/navigation';
-// export default function SignUp() {
-//   const [email, setEmail] = useState('');
-//   const [password, setPassword] = useState('');
-//   const router = useRouter();
-
-//   const handleSignUp = async () => {
-//     const supabase =  createClient()
-//     const { error } = await supabase.auth.signUp({ email, password });
-//     if (error) {
-//       alert(error.message);
-//     } else {
-//       alert('Check your email to confirm sign up');
-//       router.push('/auth/signin');
-//     }
-//   };
-
-//   return (
-//     <div className="p-4">
-//       <h1 className="text-xl mb-4">Sign Up</h1>
-//       <input type="email" placeholder="Email" className="mb-2" onChange={e => setEmail(e.target.value)} />
-//       <input type="password" placeholder="Password" className="mb-2" onChange={e => setPassword(e.target.value)} />
-//       <button onClick={handleSignUp}>Sign Up</button>
-//     </div>
-//   );
-// }
 
 "use client"
 
@@ -54,13 +25,13 @@ export default function SignUp() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const router = useRouter()
   // Handle input changes
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors((prev) => ({ ...prev, [e.target.name]: null })); // clear error on change
+    setErrors((prev) => ({ ...prev, [e.target.name]: '' })); // clear error on change
   };
 
   // Handle form submit
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement> ) => {
     e.preventDefault();
 
     // Validate formData using Zod manually
@@ -95,10 +66,13 @@ export default function SignUp() {
         toast('Check your email to confirm sign up');
         router.push('/');
       }
-    } catch (err: any) {
-      const msg =
-        err.response?.data?.message || 'Something went wrong. Try again.';
-      toast.error(msg);
+    } catch (err: unknown) {
+      let msg = 'Something went wrong. Try again.';
+  if (err && typeof err === 'object' && 'response' in err) {
+    const error = err as { response?: { data?: { message?: string } } };
+    msg = error.response?.data?.message || msg;
+  }
+  toast.error(msg);
     } finally {
       setIsSubmitting(false);
       setFormData((prev) => ({ ...prev, password: '' })); // clear password field only

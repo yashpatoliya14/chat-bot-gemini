@@ -1,7 +1,7 @@
 import SignIn from "@/components/auth/SignIn";
 
 
-export default function (){
+export default function Signin(){
     return (
         <>
             <SignIn/>

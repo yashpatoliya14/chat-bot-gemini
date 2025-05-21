@@ -1,4 +1,4 @@
-import { useState, CSSProperties } from "react";
+import { CSSProperties } from "react";
 import { CircleLoader } from "react-spinners";
 const override: CSSProperties = {
     display: "block",
@@ -7,14 +7,12 @@ const override: CSSProperties = {
 };
 export default function Loader() {
 
-    let [loading, setLoading] = useState(true);
-    let [color, setColor] = useState("black");
     return (
         <>
             <div className="sweet-loading">
                 <CircleLoader
-                    color={color}
-                    loading={loading}
+                    color={"black"}
+                    loading={true}
                     cssOverride={override}
                     size={20}
                     aria-label="Loading Spinner"

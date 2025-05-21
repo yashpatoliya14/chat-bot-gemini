@@ -17,20 +17,20 @@ const schema = z.object({
 export default function SignIn() {
 
   // Form state
-  const [formData, setFormData] = useState<Record<string,string>>({ email: '', password: '' });
-  
+  const [formData, setFormData] = useState<Record<string, string>>({ email: '', password: '' });
+
   // Errors state for validation errors
-  const [errors, setErrors] = useState<Record<string,string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const router = useRouter()
   // Handle input changes
-  const handleChange = (e : any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors((prev) => ({ ...prev, [e.target.name]: null })); // clear error on change
+    setErrors((prev: Record<string, string>) => ({ ...prev, [e.target.name]: '' })); // clear error on change
   };
 
   // Handle form submit
-  const handleSubmit = async (e : any) => {
+  const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Validate formData using Zod manually
@@ -38,7 +38,7 @@ export default function SignIn() {
 
     if (!result.success) {
       // Build errors object from Zod errors
-      
+
       const fieldErrors: Record<string, string> = {};
 
       result.error.errors.forEach((err: z.ZodIssue) => {
@@ -53,18 +53,21 @@ export default function SignIn() {
     // Validation passed, submit form
     try {
       setIsSubmitting(true);
-      const supabase =  createClient();
-      const { error } = await supabase.auth.signInWithPassword({ email : formData.email,password: formData.password });
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({ email: formData.email, password: formData.password });
       if (error) {
         toast(error.message);
       } else {
         toast("Signin successful");
         router.push('/');
       }
-     
-    } catch (err : any) {
-      const msg =
-        err.response?.data?.message || 'Something went wrong. Try again.';
+
+    } catch (err: unknown) {
+      let msg = 'Something went wrong. Try again.';
+      if (err && typeof err === 'object' && 'response' in err) {
+        const error = err as { response?: { data?: { message?: string } } };
+        msg = error.response?.data?.message || msg;
+      }
       toast.error(msg);
     } finally {
       setIsSubmitting(false);
@@ -82,19 +85,19 @@ export default function SignIn() {
     <div className="grid min-h-screen md:grid-cols-2">
       {/* ---------- left image ---------- */}
       <div className="relative hidden md:block h-screen bg-black">
-  
 
-  <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/20"></div>
 
-  <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
-    <h1 className="text-white text-5xl md:text-6xl font-extrabold leading-tight drop-shadow-lg">
-      Welcome to <span className="text-slate-400">Chloe</span>
-    </h1>
-    <p className="mt-4 text-lg md:text-xl text-gray-200 max-w-xl drop-shadow-md">
-      Get answers. Find inspiration. Be more productive.
-    </p>
-  </div>
-</div>
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/20"></div>
+
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+          <h1 className="text-white text-5xl md:text-6xl font-extrabold leading-tight drop-shadow-lg">
+            Welcome to <span className="text-slate-400">Chloe</span>
+          </h1>
+          <p className="mt-4 text-lg md:text-xl text-gray-200 max-w-xl drop-shadow-md">
+            Get answers. Find inspiration. Be more productive.
+          </p>
+        </div>
+      </div>
 
 
       {/* ---------- right form ---------- */}
@@ -165,8 +168,8 @@ export default function SignIn() {
                 className="block text-sm font-medium text-gray-700 cursor-pointer"
               >
                 <Link href='/signup'>
-               Create an account
-               </Link>
+                  Create an account
+                </Link>
               </label>
             </div>
 

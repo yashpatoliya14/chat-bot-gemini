@@ -2,11 +2,9 @@
 "use client";
 
 
-import { useEffect, useState, useRef, FC } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-
-import { LogOut, Upload, Send, Menu } from "lucide-react";
 import Header from "./Header";
 import { User } from "@supabase/supabase-js";
 import MessageSection from "./MessageSection";

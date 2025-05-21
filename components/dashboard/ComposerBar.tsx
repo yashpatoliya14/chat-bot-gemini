@@ -1,9 +1,9 @@
 "use client"
 import { Send, Upload } from "lucide-react";
-import { Dispatch, SetStateAction, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useRef } from "react";
 import Loader from "./Loader";
 
-export default function ComposerBar({ prompt, onPromptChange, onSend, onSelectFile, onUpload, selectedFile, isLoading, setIsLoading }: {
+export default function ComposerBar({ prompt, onPromptChange, onSend, onSelectFile, onUpload, isLoading }: {
   prompt: string,
   onPromptChange: (v: string) => void,
   onSend: () => void,
@@ -14,7 +14,6 @@ export default function ComposerBar({ prompt, onPromptChange, onSend, onSelectFi
   setIsLoading: Dispatch<SetStateAction<boolean>>
 }) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [uploading,setUploading]  = useState<boolean>(false)
   return (
     <div className="border rounded-3xl border-slate-200 bg-white/60 backdrop-blur-sm sm:p-4 p-2  flex items-center sm:gap-3 fixed bottom-5 w-[50%] sm:right-[25%] right-[35%]">
       <input
