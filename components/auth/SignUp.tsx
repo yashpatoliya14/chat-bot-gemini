@@ -170,16 +170,12 @@ export default function SignUp() {
 
             <div>
               <label
-                htmlFor="password"
                 className="block text-sm font-medium text-gray-700 cursor-pointer"
               >
                 <Link href={'/signin'}>
                   Already have an account ?
                 </Link>
               </label>
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
-              )}
             </div>
 
             {/* -------------- submit -------------- */}
@@ -191,7 +187,7 @@ export default function SignUp() {
                 transition focus:outline-none focus:ring-2 focus:ring-offset-2
                 focus:ring-black/30 disabled:opacity-60"
             >
-              {isSubmitting ? 'Signing in…' : 'Sign up'}
+              {isSubmitting ? 'Signing up…' : 'Sign up'}
             </button>
           </form>
         </div>
