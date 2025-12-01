@@ -1,7 +1,6 @@
 
 "use client";
 
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -10,17 +9,15 @@ import { User } from "@supabase/supabase-js";
 import MessageSection from "./MessageSection";
 import ComposerBar from "./ComposerBar";
 import { LoadingBar } from "../LoadingBar";
+import { Box } from "@mui/material";
 
 
 export type Message = { role: "user" | "assistant"; text: string };
-type HistoryItem = { id: string; title?: string; question: string; answer: string };
 
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null)
   const [prompt, setPrompt] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
-  const [file, setFile] = useState<File | null>(null);
-  const [pdfText, setPdfText] = useState("");
   const router = useRouter();
   const supabase = createClient();
   const [isLoading,setIsLoading] = useState<boolean>(false)
@@ -30,30 +27,14 @@ export default function Dashboard() {
     await supabase.auth.signOut();
     router.push("/signin");
   };
-  //--------------------------------- history fetch and assign get user
+  //--------------------------------- get user
   useEffect(() => {
     const init = async () => {
       setLoadingBar(true)
       const { data: auth } = await supabase.auth.getUser();
       if (!auth.user) return router.push("/signin");
       setUser(auth.user);
-      
-      try {
-        const res = await fetch("/api/history");
-        if (!res.ok) throw new Error(await res.text());
-        const { data: hist } = await res.json();
-        setMessages(
-          hist.flatMap((c: HistoryItem) => [
-            { role: "assistant", text: c.answer },
-            { role: "user", text: c.question },
-          ]).reverse()
-        );
-      } catch (err) {
-        console.error(err);
-        setMessages([{ role: "assistant", text: "❌ Could not load history." }]);
-      }finally{
-        setLoadingBar(false)        
-      }
+      setLoadingBar(false)
     };
     init();
   }, [router, supabase]);
@@ -69,7 +50,7 @@ export default function Dashboard() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: `${prompt}\n\n${pdfText}` }),
+        body: JSON.stringify({ prompt }),
       });
       if (!res.ok) throw new Error(await res.text());
       const { answer } = await res.json();
@@ -79,47 +60,29 @@ export default function Dashboard() {
       setMessages((m) => [...m, { role: "assistant", text: "Something went wrong." }]);
     } finally {
       setIsLoading(false)
-      setFile(null)
       setPrompt('')
-    }
-    setPrompt("");
-  };
-  
-  /* Upload PDF -------------------------------------------------------- */
-  const uploadPdf = async () => {
-    if (!file) return;
-    console.log("i called");
-    
-    setIsLoading(true)
-    const formData = new FormData();
-    formData.append("file", file);
-    try {
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      if (!res.ok) throw new Error(await res.text());
-      const { text } = await res.json();
-      setPdfText(text);
-    } catch (err) {
-      console.error("Upload failed", err);
-    }finally{
-      setIsLoading(false)
     }
   };
   return (
-    <>
-  <LoadingBar isLoading={isLoadingBar}/>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        bgcolor: "background.default",
+      }}
+    >
+      <LoadingBar isLoading={isLoadingBar} />
       <Header onLogout={logout} user={user} />
       <MessageSection messages={messages} />
-      <ComposerBar 
-        prompt={prompt} 
-        onPromptChange={setPrompt} 
-        onSend={send} 
-        onSelectFile={setFile} 
-        onUpload={uploadPdf} 
-        selectedFile={file}
-        isLoading={isLoading} 
+      <ComposerBar
+        prompt={prompt}
+        onPromptChange={setPrompt}
+        onSend={send}
+        isLoading={isLoading}
         setIsLoading={setIsLoading}
       />
-    </>
-  )
+    </Box>
+  );
 }
 

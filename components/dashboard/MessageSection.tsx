@@ -2,8 +2,9 @@
 import { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Bot, User as UserIcon } from "lucide-react";
 import { Message } from "./Dashboard";
+import { Box, Paper, Avatar, Typography, Chip } from "@mui/material";
+import { SmartToy, Person } from "@mui/icons-material";
 
 export default function MessageSection({ messages }: { messages: Message[] }) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -13,105 +14,153 @@ export default function MessageSection({ messages }: { messages: Message[] }) {
   }, [messages]);
 
   return (
-    <div
-      className="
-    flex-1
-    px-4
-    py-4
-    my-24
-    space-y-4
-    overflow-y-auto
-    overflow-x-hidden  /* <-- prevent whole page horizontal scroll */
-    max-h-[calc(100vh-5rem)]
-    sm:px-6
-    md:px-10
-  "
+    <Box
+      sx={{
+        flex: 1,
+        px: { xs: 2, sm: 3, md: 4 },
+        py: 3,
+        mt: 10,
+        mb: 12,
+        overflowY: "auto",
+        overflowX: "hidden",
+        maxHeight: "calc(100vh - 5rem)",
+        display: "flex",
+        flexDirection: "column",
+        gap: 2.5,
+      }}
     >
       {messages.map(({ role, text }, i) => (
-        <div
-  key={i}
-  className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}
->
-  <div className="flex items-start gap-2 w-full max-w-full min-w-0 sm:max-w-md md:max-w-lg lg:max-w-xl">
-    {role === "assistant" && (
-      <div className="mt-1 flex-shrink-0">
-        <Bot className="w-5 h-5 text-gray-500" />
-      </div>
-    )}
+        <Box
+          key={i}
+          sx={{
+            display: "flex",
+            justifyContent: role === "user" ? "flex-end" : "flex-start",
+            animation: "fadeIn 0.3s ease-in",
+            "@keyframes fadeIn": {
+              from: { opacity: 0, transform: "translateY(10px)" },
+              to: { opacity: 1, transform: "translateY(0)" },
+            },
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 1.5,
+              maxWidth: { xs: "95%", sm: "80%", md: "70%", lg: "60%" },
+              flexDirection: role === "user" ? "row-reverse" : "row",
+            }}
+          >
+            <Avatar
+              sx={{
+                width: 36,
+                height: 36,
+                bgcolor: role === "user" ? "#3b82f6" : "#64748b",
+                flexShrink: 0,
+              }}
+            >
+              {role === "user" ? <Person sx={{ fontSize: 20 }} /> : <SmartToy sx={{ fontSize: 20 }} />}
+            </Avatar>
 
-    <div
-      className={`
-        rounded-2xl
-        px-4
-        py-2
-        text-sm
-        whitespace-pre-wrap
-        shadow
-        break-words
-        wrap
-        w-full
-        min-w-0
-        ${role === "user"
-          ? "bg-blue-600 text-white rounded-br-none"
-          : "bg-gray-100 text-gray-900 rounded-bl-none"
-        }
-      `}
-    >
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          code({ className, children, ...props }) {
-            const isBlock = !className;
-            return isBlock ? (
-              <pre className="bg-gray-800 text-white p-4 rounded my-2 max-w-full overflow-x-auto whitespace-pre-wrap">
-                <code>{children}</code>
-              </pre>
-            ) : (
-              <code
-                className="bg-gray-200 px-1 py-0.5 rounded text-sm break-words whitespace-pre-wrap"
-                {...props}
+            <Paper
+              elevation={2}
+              sx={{
+                px: 2.5,
+                py: 1.5,
+                borderRadius: 2.5,
+                bgcolor: role === "user" ? "#3b82f6" : "#f1f5f9",
+                color: role === "user" ? "white" : "text.primary",
+                borderBottomRightRadius: role === "user" ? 0 : 20,
+                borderBottomLeftRadius: role === "assistant" ? 0 : 20,
+                wordBreak: "break-word",
+                "& code": {
+                  fontFamily: "'Courier New', monospace",
+                },
+              }}
+            >
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  code({ className, children, ...props }) {
+                    const isBlock = !className;
+                    return isBlock ? (
+                      <Box
+                        component="pre"
+                        sx={{
+                          bgcolor: "#1e293b",
+                          color: "white",
+                          p: 2,
+                          borderRadius: 1.5,
+                          my: 1.5,
+                          overflowX: "auto",
+                          fontSize: "0.875rem",
+                        }}
+                      >
+                        <code>{children}</code>
+                      </Box>
+                    ) : (
+                      <Chip
+                        label={children}
+                        size="small"
+                        sx={{
+                          height: "auto",
+                          py: 0.3,
+                          fontSize: "0.8rem",
+                          fontFamily: "'Courier New', monospace",
+                          bgcolor: role === "user" ? "rgba(255,255,255,0.2)" : "#e2e8f0",
+                          color: role === "user" ? "white" : "text.primary",
+                        }}
+                        {...props}
+                      />
+                    );
+                  },
+                  a({ href, children }) {
+                    return (
+                      <Typography
+                        component="a"
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                          color: role === "user" ? "#bfdbfe" : "primary.main",
+                          textDecoration: "underline",
+                          "&:hover": { textDecoration: "none" },
+                        }}
+                      >
+                        {children}
+                      </Typography>
+                    );
+                  },
+                  p({ children }) {
+                    return (
+                      <Typography variant="body2" sx={{ my: 0.5, lineHeight: 1.6 }}>
+                        {children}
+                      </Typography>
+                    );
+                  },
+                  strong({ children }) {
+                    return (
+                      <Typography component="strong" sx={{ fontWeight: 600 }}>
+                        {children}
+                      </Typography>
+                    );
+                  },
+                  li({ children }) {
+                    return (
+                      <Typography component="li" variant="body2" sx={{ ml: 3 }}>
+                        {children}
+                      </Typography>
+                    );
+                  },
+                }}
               >
-                {children}
-              </code>
-            );
-          },
-          a({ href, children }) {
-            return (
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 underline break-words whitespace-pre-wrap"
-              >
-                {children}
-              </a>
-            );
-          },
-          p({ children }) {
-            return <p className="my-2 leading-relaxed break-words whitespace-pre-wrap">{children}</p>;
-          },
-          strong({ children }) {
-            return <strong className="font-semibold whitespace-pre-wrap">{children}</strong>;
-          },
-          li({ children }) {
-            return <li className="ml-6 list-disc break-words whitespace-pre-wrap">{children}</li>;
-          },
-        }}
-      >
-        {text}
-      </ReactMarkdown>
-    </div>
-
-    {role === "user" && (
-      <div className="mt-1 flex-shrink-0">
-        <UserIcon className="w-5 h-5 text-blue-600" />
-      </div>
-    )}
-  </div>
-</div>
-
+                {text}
+              </ReactMarkdown>
+            </Paper>
+          </Box>
+        </Box>
       ))}
       <div ref={bottomRef} />
-    </div>
+    </Box>
   );
 }

@@ -1,35 +1,111 @@
 import type { User } from "@supabase/supabase-js";
-import { LogOut } from "lucide-react";
-import { useState } from "react";
+import { useState, MouseEvent } from "react";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Avatar,
+  Menu,
+  MenuItem,
+  Box,
+  Divider,
+  ListItemIcon,
+} from "@mui/material";
+import { Logout as LogoutIcon, Person } from "@mui/icons-material";
+
 export default function Header({
   user,
   onLogout,
 }: { user: User | null; onLogout: () => void }) {
-  const [hiddenLogout,setHiddenLogout] = useState<boolean>(true)
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    handleClose();
+    onLogout();
+  };
+
+  const getInitials = (email: string | undefined) => {
+    if (!email) return "U";
+    return email.charAt(0).toUpperCase();
+  };
+
   return (
-    <header className="flex items-center justify-between px-6 bg-slate-800 py-4 text-white shadow-sm sticky top-0">
-      <h1 className="text-xl font-semibold ">Chloe</h1>
-      <div 
-        onMouseLeave={()=>setHiddenLogout(true)}
-        className="relative flex items-center gap-4 sm:text-sm text-xs">
+    <AppBar position="sticky" elevation={2} sx={{ bgcolor: "#1e293b" }}>
+      <Toolbar sx={{ justifyContent: "space-between" }}>
+        <Typography variant="h6" component="h1" sx={{ fontWeight: 600, letterSpacing: 0.5 }}>
+          🤖 Chloe
+        </Typography>
         
-        <div 
-        className={`absolute top-8 right-4 bg-slate-900 p-5 rounded-xl ${hiddenLogout ? "hidden" : "block"}`}>
-        {user?.email && <span className="text-white">{user.email}</span>}
-        <button 
-          
-          onClick={onLogout} className="flex w-full  justify-center flex-row gap-2 p-3 bg-red-600 rounded-2xl my-3 cursor-pointer">
-            Log out <LogOut size={15} className="my-auto"/>
-        </button>
-        </div>
-        <button
-        onMouseEnter={()=>setHiddenLogout(false)}
-        
-        className="rounded-full p-2 hover:bg-gray-200 transition text-red-500"
-        >
-          <LogOut size={18} />
-        </button>
-      </div>
-    </header>
-  )
+        <Box>
+          <IconButton
+            onClick={handleClick}
+            size="small"
+            aria-controls={open ? "account-menu" : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? "true" : undefined}
+          >
+            <Avatar
+              sx={{
+                width: 36,
+                height: 36,
+                bgcolor: "#3b82f6",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+              }}
+            >
+              {getInitials(user?.email)}
+            </Avatar>
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            id="account-menu"
+            open={open}
+            onClose={handleClose}
+            onClick={handleClose}
+            slotProps={{
+              paper: {
+                elevation: 3,
+                sx: {
+                  minWidth: 220,
+                  mt: 1.5,
+                  borderRadius: 2,
+                  "& .MuiMenuItem-root": {
+                    borderRadius: 1,
+                    mx: 1,
+                    my: 0.5,
+                  },
+                },
+              },
+            }}
+            transformOrigin={{ horizontal: "right", vertical: "top" }}
+            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+          >
+            <Box sx={{ px: 2, py: 1.5 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Person fontSize="small" />
+                {user?.email}
+              </Typography>
+            </Box>
+            <Divider />
+            <MenuItem onClick={handleLogout} sx={{ color: "error.main", py: 1.5 }}>
+              <ListItemIcon>
+                <LogoutIcon fontSize="small" sx={{ color: "error.main" }} />
+              </ListItemIcon>
+              Logout
+            </MenuItem>
+          </Menu>
+        </Box>
+      </Toolbar>
+    </AppBar>
+  );
 }
