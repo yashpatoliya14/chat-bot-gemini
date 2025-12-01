@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Message } from "./Dashboard";
-import { Box, Paper, Avatar, Typography, Chip } from "@mui/material";
+import { Box, Paper, Avatar, Typography } from "@mui/material";
 import { SmartToy, Person } from "@mui/icons-material";
 
 export default function MessageSection({ messages }: { messages: Message[] }) {
@@ -81,7 +81,7 @@ export default function MessageSection({ messages }: { messages: Message[] }) {
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                  code({ className, children, ...props }) {
+                  code({ className, children }) {
                     const isBlock = !className;
                     return isBlock ? (
                       <Box
@@ -99,19 +99,21 @@ export default function MessageSection({ messages }: { messages: Message[] }) {
                         <code>{children}</code>
                       </Box>
                     ) : (
-                      <Chip
-                        label={children}
-                        size="small"
+                      <Box
+                        component="code"
                         sx={{
-                          height: "auto",
+                          display: "inline-block",
+                          px: 0.8,
                           py: 0.3,
-                          fontSize: "0.8rem",
+                          borderRadius: 1,
+                          fontSize: "0.85em",
                           fontFamily: "'Courier New', monospace",
                           bgcolor: role === "user" ? "rgba(255,255,255,0.2)" : "#e2e8f0",
                           color: role === "user" ? "white" : "text.primary",
                         }}
-                        {...props}
-                      />
+                      >
+                        {children}
+                      </Box>
                     );
                   },
                   a({ href, children }) {
