@@ -68,7 +68,7 @@ export default function Dashboard() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        minHeight: "100vh",
+        minHeight: "99vh",
         bgcolor: "background.default",
       }}
     >
