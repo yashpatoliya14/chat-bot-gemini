@@ -43,24 +43,37 @@ export default function Dashboard() {
   
   const send = async () => {
     if (!prompt.trim()) return;
-    setMessages((m) => [...m, { role: "user", text: prompt }]);
+    const currentPrompt = prompt;
+    setPrompt('');
+    setMessages((m) => [...m, { role: "user", text: currentPrompt }]);
     
     try {
       setIsLoading(true)
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt: currentPrompt }),
       });
-      if (!res.ok) throw new Error(await res.text());
-      const { answer } = await res.json();
-      setMessages((m) => [...m, { role: "assistant", text: answer }]);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('API Error:', errorText);
+        throw new Error(errorText);
+      }
+      
+      const data = await res.json();
+      if (data.error) {
+        console.error('Response Error:', data.error);
+        throw new Error(data.error);
+      }
+      
+      setMessages((m) => [...m, { role: "assistant", text: data.answer }]);
     } catch (err) {
-      console.error(err);
-      setMessages((m) => [...m, { role: "assistant", text: "Something went wrong." }]);
+      console.error('Send Error:', err);
+      const errorMessage = err instanceof Error ? err.message : "Something went wrong.";
+      setMessages((m) => [...m, { role: "assistant", text: `❌ Error: ${errorMessage}` }]);
     } finally {
       setIsLoading(false)
-      setPrompt('')
     }
   };
   return (
